@@ -1,0 +1,22 @@
+services:
+  slack-webhook:
+    build: .
+    container_name: slack-webhook
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok
+    depends_on:
+      - slack-webhook
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    command: http slack-webhook:8000
+    ports:
+      - "4040:4040"  # ngrokのWeb UI
